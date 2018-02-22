@@ -1,0 +1,79 @@
+---
+- name: Run the equivalent of "apt-get update".
+  apt:
+    update_cache: yes
+
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+- name: Install the package "htop"
+  apt:
+    name: htop
+    state: present
+
+- name: Install the package "vim"
+  apt:
+    name: vim
+    state: present
+
+- name: Install the package "bc"
+  apt:
+    name: bc
+    state: present
+
+- name: Set route_localnet
+  sysctl:
+    name: net.ipv4.conf.all.route_localnet
+    value: 1
+    sysctl_set: yes
+
+- name: Setup port forwarding from 80 to 51679 for metadata (1)
+  iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: tcp
+    destination: 169.254.170.2
+    destination_port: 80
+    jump: DNAT
+    to_destination: 127.0.0.1:51679
+    #to_ports: 51679
+
+- name: Setup port forwarding from 80 to 51679 for metadata (2)
+  iptables:
+    table: nat
+    chain: OUTPUT
+    destination: 169.254.170.2
+    protocol: tcp
+    match: tcp
+    destination_port: 80
+    jump: REDIRECT
+    to_ports: 51679
+
+
+
+
+- include: check_requirements.yml
+
+- include: section_01.yml
+  tags: section01
+
+- include: section_02.yml
+  tags: section02
+
+- include: section_03.yml
+  tags: section03
+
+- include: section_04.yml
+  tags: section04
+
+- include: section_05.yml
+  tags: section05
+
+- include: section_06.yml
+  tags: section06
+

@@ -1,0 +1,91 @@
+{
+  "variables": {
+    "vpc": "{{env `BUILD_VPC_ID`}}",
+    "subnet": "{{env `BUILD_SUBNET_ID`}}",
+    "aws_region": "{{env `AWS_REGION`}}",
+    "ami_name": "Latest-Ubuntu-{{isotime \"02-Jan-06 03_04_05\"}}",
+    "dockerhub_email":"",
+    "dockerhub_password":"",
+    "dockerhub_username":""
+  },
+  "builders": [{
+    "name": "AWS AMI Builder - Ubuntu",
+    "type": "amazon-ebs",
+    "region": "{{user `aws_region`}}",
+    "source_ami_filter": {
+        "filters": {
+            "virtualization-type": "hvm",
+            "name": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*",
+            "root-device-type": "ebs"
+        },
+        "owners": ["679593333241"],
+        "most_recent": true
+    },
+    "launch_block_device_mappings":[
+            {
+               "device_name":"/dev/sda1",
+               "volume_size":100,
+               "volume_type":"gp2",
+               "delete_on_termination":true
+            }
+    ],
+    "instance_type": "t2.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "{{user `ami_name` | clean_ami_name}}",
+    "tags": {
+      "Name": "{{user `ami_name`}}"
+    },
+    "run_tags": { 
+      "Name": "{{user `ami_name`}}"
+    },
+    "run_volume_tags": {
+      "Name": "{{user `ami_name`}}"
+    },
+    "snapshot_tags": {
+      "Name": "{{user `ami_name`}}"
+    },
+    "ami_description": "Ubuntu with ECS agent",
+    "associate_public_ip_address": "true",
+    "vpc_id": "{{user `vpc`}}",
+    "subnet_id": "{{user `subnet`}}",
+    "snapshot_users": ["711940833208","232720106935","465377470325","850942050748","667069524261","360747168161","395679831567"],
+    "ami_users": ["711940833208","232720106935","465377470325","850942050748","667069524261","360747168161","395679831567"],
+    "ami_regions": ["us-east-1", "us-west-2", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "eu-west-2", "eu-west-1"]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/ansible.sh"
+    }, 
+    {
+      "type": "shell",
+      "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/ecs.sh",
+      "environment_vars":[
+            "DOCKERHUB_EMAIL={{ user `dockerhub_email` }}",
+            "DOCKERHUB_PASSWORD={{ user `dockerhub_password` }}",
+            "DOCKERHUB_USERNAME={{ user `dockerhub_username` }}"
+         ]
+    }, 
+    {
+        "type": "ansible-local",
+        "playbook_file": "ansible/playbook.yaml",
+        "role_paths": [
+            "ansible/roles/common"
+        ],
+        "playbook_dir": "ansible",
+        "galaxy_file": "ansible/requirements.yaml"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/tune.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/cleanup.sh"
+    }
+  ]
+}

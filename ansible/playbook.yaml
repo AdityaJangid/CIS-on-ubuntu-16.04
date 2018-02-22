@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true    # gather OS info that is made available for tasks/roles
+  become: yes           # majority of ecs agent tasks require root
+  vars:
+    docker_edition: "ce"
+    docker_channel: "stable"
+    docker_version: "17.09.1"
+    docker_install_docker_compose: False
+    docker_users: ['ubuntu']
+    docker_cron_tasks:
+      - command: docker system prune -a -f
+        name: "Docker clean up"
+        # This uses the standard crontab syntax. 
+        schedule: ["0", "22", "*", "*", "*"]
+  roles:
+    - common
+    # - nickjj.docker
