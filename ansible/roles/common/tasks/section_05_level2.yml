@@ -147,21 +147,21 @@
       - section5.2
       - section5.2.13
 
-  - name: 5.2.14 Ensure SSH access is limited (Scored)
-    lineinfile:
-      dest: /etc/ssh/sshd_config
-      regexp: '^{{item.name}}'
-      line: '{{item.name}} {{item.value}}'
-    with_items:
-      - { name: 'AllowUsers' , value: '{{ sshd_allow_users }}' }
-      - { name: 'AllowGroups' , value: '{{ sshd_allow_groups }}' }
-      - { name: 'DenyUsers' , value: '{{ sshd_deny_users }}' }
-      - { name: 'DenyGroups' , value: '{{ sshd_deny_groups }}' }
-    notify: restart ssh
-    tags:
-      - section5
-      - section5.2
-      - section5.2.14
+  # - name: 5.2.14 Ensure SSH access is limited (Scored)
+  #   lineinfile:
+  #     dest: /etc/ssh/sshd_config
+  #     regexp: '^{{item.name}}'
+  #     line: '{{item.name}} {{item.value}}'
+  #   with_items:
+  #     - { name: 'AllowUsers' , value: '{{ sshd_allow_users }}' }
+  #     - { name: 'AllowGroups' , value: '{{ sshd_allow_groups }}' }
+  #     - { name: 'DenyUsers' , value: '{{ sshd_deny_users }}' }
+  #     - { name: 'DenyGroups' , value: '{{ sshd_deny_groups }}' }
+  #   notify: restart ssh
+  #   tags:
+  #     - section5
+  #     - section5.2
+  #     - section5.2.14
 
   - name: 5.2.15 Ensure SSH warning banner is configured (Scored)
     lineinfile:
